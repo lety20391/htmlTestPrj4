@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<head>
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<title>Hello, world!</title>
+	<script src='js/keyboard.js'></script>
+	<!-- include three.js library -->
+	<script src='js/three.js'></script>
+        <script src='js/GLTF2Loader.js'></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.7.3/nipplejs.js"></script>
+</head>
+
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+
+<!-- 
+  Example created by Lee Stemkoski: https://github.com/stemkoski
+-->
+
+<script>
+
+var scene, camera, renderer, clock, deltaTime, totalTime, keyboard;
+
+var mover;
+
+initialize();
+animate();
+var up = false;
+var endJoystick = true;
+
+var key = 0;
+function initialize()
+{
+   
+    
+    
+	scene = new THREE.Scene();
+				
+	camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.1, 1000 );
+	camera.position.set(0, 2, 4);
+	camera.lookAt( scene.position );	
+	scene.add( camera );
+
+	let ambientLight = new THREE.AmbientLight( 0xcccccc, 1.00 );
+	scene.add( ambientLight );
+	
+	// let pointLight = new THREE.PointLight();
+	// camera.add( pointLight );
+	
+	renderer = new THREE.WebGLRenderer({
+		antialias : true,
+		alpha: false,
+	});
+        
+        renderer.gammaOutput = true;
+        renderer.gammaFactor = 2.2;
+        
+	renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	renderer.domElement.style.position = 'absolute'
+	renderer.domElement.style.top  = '0px'
+	renderer.domElement.style.left = '0px'
+	document.body.appendChild( renderer.domElement );
+	window.addEventListener( 'resize', onWindowResize, false );
+
+	clock = new THREE.Clock();
+	deltaTime = 0;
+	totalTime = 0;
+	
+	keyboard = new Keyboard();
+	
+	let loader = new THREE.TextureLoader();
+	
+	// floor
+	let floorGeometry = new THREE.PlaneGeometry(10,10);
+	let floorMaterial = new THREE.MeshBasicMaterial({ 
+		map: loader.load( 'images/color-grid.png' )
+	});
+	let floorMesh = new THREE.Mesh( floorGeometry, floorMaterial );
+	floorMesh.rotation.x = -Math.PI/2;
+	scene.add( floorMesh );
+        
+        
+	//add point light to test metal
+        var light = new THREE.PointLight( 0xffffff, 1, 100 );
+        light.position.set( 50, 50, 50 );
+        scene.add( light );
+        
+        ///CUBE////
+//	let cubeGeometry = new THREE.BoxGeometry(1,1,1);
+//	let materialArray = [
+//		new THREE.MeshBasicMaterial( { map: loader.load("images/xpos.png") } ),
+//		new THREE.MeshBasicMaterial( { map: loader.load("images/xneg.png") } ),
+//		new THREE.MeshBasicMaterial( { map: loader.load("images/ypos.png") } ),
+//		new THREE.MeshBasicMaterial( { map: loader.load("images/yneg.png") } ),
+//		new THREE.MeshBasicMaterial( { map: loader.load("images/zpos.png") } ),
+//		new THREE.MeshBasicMaterial( { map: loader.load("images/zneg.png") } ),
+//	];
+//	let cubeMesh = new THREE.Mesh( cubeGeometry, materialArray );
+	///CUBE////
+        
+        
+        //create group
+        mover = new THREE.Group();
+	//mover.add( cubeMesh );
+        
+        // Instantiate a loader
+        var loader2 = new THREE.GLTF2Loader();
+
+        // Optional: Provide a DRACOLoader instance to decode compressed mesh data
+//        THREE.DRACOLoader.setDecoderPath('js/libs/draco');
+//        loader2.setDRACOLoader( new THREE.DRACOLoader() );
+
+        // Load a glTF resource
+        loader2.load(
+                // resource URL
+                'GLTF/x_ray.gltf',
+                // called when the resource is loaded
+                function ( gltf ) {
+                        gltf.scene.scale.set(0.05, 0.05, 0.05);
+
+                        gltf.animations; // Array<THREE.AnimationClip>
+                        gltf.scene; // THREE.Scene
+                        gltf.scenes; // Array<THREE.Scene>
+                        gltf.cameras; // Array<THREE.Camera>
+                        gltf.asset; // Object
+                        mover.add( gltf.scene );
+
+                },
+                // called while loading is progressing
+                function ( xhr ) {
+
+                        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+
+                },
+                // called when loading has errors
+                function ( error ) {
+
+                        console.log( 'An error happened' );
+
+                }
+        );
+        
+        
+	
+	mover.position.y = 0.5;
+	scene.add( mover );
+}
+
+function update()
+{
+    
+        let translateSpeed = 0.5; // units per second
+	let distance = translateSpeed * deltaTime;
+	let rotateSpeed = Math.PI/3; // radians per second
+	let angle = rotateSpeed * deltaTime;
+	
+        
+	keyboard.update();
+	
+	
+        
+	if (keyboard.isKeyPressed("W"))
+		mover.translateZ( -distance );
+	if (keyboard.isKeyPressed("S"))
+		mover.translateZ( distance );
+		
+	if (keyboard.isKeyPressed("A"))
+		mover.translateX( -distance );
+	if (keyboard.isKeyPressed("D"))
+		mover.translateX( distance );
+		
+	if (keyboard.isKeyPressed("R"))
+		mover.translateY( distance );
+	if (keyboard.isKeyPressed("F"))
+		mover.translateY( -distance );
+		
+	if (keyboard.isKeyPressed("Q"))
+		mover.rotateY( angle );
+	if (keyboard.isKeyPressed("E"))
+		mover.rotateY( -angle );
+		
+	if (keyboard.isKeyPressed("T"))
+		mover.children[0].rotateX( angle );
+	if (keyboard.isKeyPressed("G"))
+		mover.children[0].rotateX( -angle );
+	
+	
+	//mesh.rotation.y += 0.01;
+}
+
+
+function render()
+{
+	renderer.render( scene, camera );
+}
+
+function animate()
+{
+	requestAnimationFrame(animate);
+	deltaTime = clock.getDelta();
+	totalTime += deltaTime;
+	update();
+        statusJoystick();
+	render();
+}
+
+function onWindowResize() 
+{
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+}
+
+
+     //////create Nipple JS JOYSTICK
+    ////////////////////////
+    
+    //    var options = {
+    //    zone: Element,                  // active zone
+    //    color: String,
+    //    size: Integer,
+    //    threshold: Float,               // before triggering a directional event
+    //    fadeTime: Integer,              // transition time
+    //    multitouch: Boolean,
+    //    maxNumberOfNipples: Number,     // when multitouch, what is too many?
+    //    dataOnly: Boolean,              // no dom element whatsoever
+    //    position: Object,               // preset position for 'static' mode
+    //    mode: String,                   // 'dynamic', 'static' or 'semi'
+    //    restJoystick: Boolean,
+    //    restOpacity: Number,            // opacity when not 'dynamic' and rested
+    //    lockX: Boolean,                 // only move on the X axis
+    //    lockY: Boolean,                 // only move on the Y axis
+    //    catchDistance: Number           // distance to recycle previous joystick in
+    //                                    // 'semi' mode
+    //    };
+    var manager = nipplejs.create("semi");
+        
+    manager.on('added', function (evt, nipple) {
+        nipple.on('plain:up', function (evt) {
+            console.log("Len");
+            endJoystick = false;
+            up = true;
+        });
+    }).on('end', function(evt, nipple){
+        console.log("END Joystick manager");
+        endJoystick = true;
+        up = false;
+    }).on('removed', function (evt, nipple) {        
+        
+        nipple.off('start move end dir plain');
+        
+    });
+    
+function statusJoystick(){
+    let translateSpeed = 0.5; // units per second
+    let distance = translateSpeed * deltaTime;
+    let rotateSpeed = Math.PI/3; // radians per second
+    let angle = rotateSpeed * deltaTime;
+    
+    if (up == true && endJoystick == false)
+		mover.translateZ( -distance );
+    
+}
+    
+//function Len(){
+//    var kbEvent= document.createEvent("KeyboardEvent");
+//    var initMethod = typeof kbEvent.initKeyboardEvent !== 'undefined' ? "initKeyboardEvent" : "initKeyEvent";
+//
+//    kbEvent[initMethod](
+//                       "keydown", // event type : keydown, keyup, keypress
+//                        true, // bubbles
+//                        true, // cancelable
+//                        window, // viewArg: should be window
+//                        false, // ctrlKeyArg
+//                        false, // altKeyArg
+//                        false, // shiftKeyArg
+//                        false, // metaKeyArg
+//                        87, // keyCodeArg : unsigned long the virtual key code , else 0
+//                        0 // charCodeArgs : unsigned long the Unicode character associated with the depressed key, else 0
+//    );
+//    console.log("87");
+//    document.dispatchEvent(kbEvent);
+//    update();
+//}    
+</script>
+</body>
+</html>
