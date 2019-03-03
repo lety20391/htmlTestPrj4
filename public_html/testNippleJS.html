@@ -27,6 +27,13 @@ var objDirectionOfJoyStick = {
     right: false,
     outOfZone: true
 };
+var objChangeAngleJoyStick = {
+    rotateUp : false,
+    rotateDown: false,
+    rotateLeft: false,
+    rorateRight: false,
+    outOfZone: true
+};
 
 initialize();
 animate();
@@ -222,51 +229,91 @@ function onWindowResize()
      //////create Nipple JS JOYSTICK
     ////////////////////////
     
-    //    var options = {
-    //    zone: Element,                  // active zone
-    //    color: String,
-    //    size: Integer,
-    //    threshold: Float,               // before triggering a directional event
-    //    fadeTime: Integer,              // transition time
-    //    multitouch: Boolean,
-    //    maxNumberOfNipples: Number,     // when multitouch, what is too many?
-    //    dataOnly: Boolean,              // no dom element whatsoever
-    //    position: Object,               // preset position for 'static' mode
-    //    mode: String,                   // 'dynamic', 'static' or 'semi'
-    //    restJoystick: Boolean,
-    //    restOpacity: Number,            // opacity when not 'dynamic' and rested
-    //    lockX: Boolean,                 // only move on the X axis
-    //    lockY: Boolean,                 // only move on the Y axis
-    //    catchDistance: Number           // distance to recycle previous joystick in
-    //                                    // 'semi' mode
-    //    };
-    var manager = nipplejs.create("semi");
+        var options = {
+            //zone: Element,                  // active zone
+            //color: String,
+            //size: Integer,
+            //threshold: Float,               // before triggering a directional event
+            //fadeTime: Integer,              // transition time
+            multitouch: true,
+            maxNumberOfNipples: 2,     // when multitouch, what is too many?
+            //dataOnly: Boolean,              // no dom element whatsoever
+            //position: Object,               // preset position for 'static' mode
+            mode: 'dynamic',                   // 'dynamic', 'static' or 'semi'
+            //restJoystick: Boolean,
+            //restOpacity: Number,            // opacity when not 'dynamic' and rested
+            //lockX: Boolean,                 // only move on the X axis
+            //lockY: Boolean,                 // only move on the Y axis
+            //catchDistance: Number           // distance to recycle previous joystick in
+                                            // 'semi' mode
+        };
+    var manager = nipplejs.create(options);
     
     //triger su kien vao bien objDirectionOfJoyStick de kiem tra trang thai
     manager.on('added', function (evt, nipple) {
-        nipple.on('dir:up', function (evt) {
-            objDirectionOfJoyStick.up = true;
-            objDirectionOfJoyStick.outOfZone = false;
+        //log Nipple ID and position to check
+        nipple.on('start', function (evt){
+            console.log("----Nipple ID----");
+            console.log(nipple.identifier);
+            console.log("----Nipple position----");
+            console.log(nipple.position);
         });
-        nipple.on('dir:down', function (evt) {
-            objDirectionOfJoyStick.down = true;
-            objDirectionOfJoyStick.outOfZone = false;
-        });
-        nipple.on('dir:left', function (evt) {
-            objDirectionOfJoyStick.left = true;
-            objDirectionOfJoyStick.outOfZone = false;
-        });
-        nipple.on('dir:right', function (evt) {
-            objDirectionOfJoyStick.right = true;
-            objDirectionOfJoyStick.outOfZone = false;
-        });
+        
+        
+        //check position of nipple, if on the left side
+        //nipple will be used to change XY position
+        if (nipple.position.x < window.innerWidth / 2)
+        {
+            //change objDirectionOfJoyStick when Nipple change direction
+            nipple.on('dir:up', function (evt) {            
+                objDirectionOfJoyStick.up = true;
+                objDirectionOfJoyStick.outOfZone = false;
+            });
+            nipple.on('dir:down', function (evt) {
+                objDirectionOfJoyStick.down = true;
+                objDirectionOfJoyStick.outOfZone = false;
+            });
+            nipple.on('dir:left', function (evt) {
+                objDirectionOfJoyStick.left = true;
+                objDirectionOfJoyStick.outOfZone = false;
+            });
+            nipple.on('dir:right', function (evt) {
+                objDirectionOfJoyStick.right = true;
+                objDirectionOfJoyStick.outOfZone = false;
+            });
+        }else{
+            //change objChangeAngleJoyStick when Nipple change direction
+            nipple.on('dir:up', function (evt) {            
+                objChangeAngleJoyStick.rotateUp = true;
+                objChangeAngleJoyStick.outOfZone = false;
+            });
+            nipple.on('dir:down', function (evt) {
+                objChangeAngleJoyStick.rotateDown = true;
+                objChangeAngleJoyStick.outOfZone = false;
+            });
+            nipple.on('dir:left', function (evt) {
+                objChangeAngleJoyStick.rotateLeft = true;
+                objChangeAngleJoyStick.outOfZone = false;
+            });
+            nipple.on('dir:right', function (evt) {
+                objChangeAngleJoyStick.rorateRight = true;
+                objChangeAngleJoyStick.outOfZone = false;
+            });
+        }
     }).on('end', function(evt, nipple){
+        //when remove Nipple reset the objDirectionOfJoyStick
         console.log("END Joystick manager");
         objDirectionOfJoyStick.up = false;
         objDirectionOfJoyStick.down = false;
         objDirectionOfJoyStick.left = false;
         objDirectionOfJoyStick.right = false;
         objDirectionOfJoyStick.outOfZone = true;
+        
+        objChangeAngleJoyStick.rotateUp = false;
+        objChangeAngleJoyStick.rotateDown = false;
+        objChangeAngleJoyStick.rotateLeft = false;
+        objChangeAngleJoyStick.rorateRight = false;
+        objChangeAngleJoyStick.outOfZone = true;
     }).on('removed', function (evt, nipple) {
         nipple.off('start move end dir plain');
     });
@@ -277,6 +324,7 @@ function statusJoystick(){
     let rotateSpeed = Math.PI/3; // radians per second
     let angle = rotateSpeed * deltaTime;
     
+    //change position
     if (objDirectionOfJoyStick.up == true && objDirectionOfJoyStick.outOfZone == false)
 		mover.translateZ( -distance );
     if (objDirectionOfJoyStick.down == true && objDirectionOfJoyStick.outOfZone == false)
@@ -285,6 +333,17 @@ function statusJoystick(){
             mover.translateX( -distance );
     if (objDirectionOfJoyStick.right == true && objDirectionOfJoyStick.outOfZone == false)
             mover.translateX( distance );
+        
+    //rotate object    
+    if (objChangeAngleJoyStick.rotateLeft == true && objChangeAngleJoyStick.outOfZone == false)
+		mover.rotateY( angle );
+    if (objChangeAngleJoyStick.rorateRight == true && objChangeAngleJoyStick.outOfZone == false)
+            mover.rotateY( -angle );
+
+    if (objChangeAngleJoyStick.rotateUp == true && objChangeAngleJoyStick.outOfZone == false)
+            mover.children[0].rotateX( angle );
+    if (objChangeAngleJoyStick.rotateDown == true && objChangeAngleJoyStick.outOfZone == false)
+            mover.children[0].rotateX( -angle );
 }
     
 //function Len(){
