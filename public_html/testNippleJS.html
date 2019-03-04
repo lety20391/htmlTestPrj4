@@ -1,15 +1,31 @@
 <!DOCTYPE html>
 <head>
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<title>Hello, world!</title>
+	<title>HIU Test</title>
 	<script src='js/keyboard.js'></script>
 	<!-- include three.js library -->
 	<script src='js/three.js'></script>
         <script src='js/GLTF2Loader.js'></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.7.3/nipplejs.js"></script>
+        <style>
+            #info {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+            display:block;
+            color: blue;
+            font-size:1,5em;
+        </style>
+}
 </head>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+    <div id="info">
+        Upgrade - <span style="color:white">Dr. Le Cong Dat - HIU</span><br/>
+        Example from    <span style="color:white"> Stemkoski</span>
+    </div>
 
 <!-- 
   Example created by Lee Stemkoski: https://github.com/stemkoski
