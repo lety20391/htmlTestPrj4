@@ -107,8 +107,8 @@ function initialize()
 	let ambientLight = new THREE.AmbientLight( 0xcccccc, 1.00 );
 	scene.add( ambientLight );
 	
-	// let pointLight = new THREE.PointLight();
-	// camera.add( pointLight );
+	let pointLight = new THREE.PointLight();
+	camera.add( pointLight );
 	
 	renderer = new THREE.WebGLRenderer({
 		antialias : true,
