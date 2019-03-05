@@ -178,7 +178,7 @@ function initialize()
         // Load a glTF resource
         loader2.load(
                 // resource URL
-                'GLTF/x_ray.gltf',
+                'GLTFfix/ModifiedXray.gltf',
                 // called when the resource is loaded
                 function ( gltf ) {
                         gltf.scene.scale.set(0.8, 0.8, 0.8);
@@ -246,7 +246,7 @@ function initialize()
 function update()
 {
     
-        let translateSpeed = 0.5; // units per second
+        let translateSpeed = 2; // units per second
 	let distance = translateSpeed * deltaTime;
 	let rotateSpeed = Math.PI/3; // radians per second
 	let angle = rotateSpeed * deltaTime;
@@ -500,9 +500,9 @@ function onWindowResize()
     });
     
 function statusToMoveObject(){
-    let translateSpeed = 0.5; // units per second
+    let translateSpeed = 3; // units per second
     let distance = translateSpeed * deltaTime;
-    let rotateSpeed = Math.PI/3; // radians per second
+    let rotateSpeed = Math.PI/6; // radians per second
     let angle = rotateSpeed * deltaTime;
     
     //change position
@@ -535,9 +535,9 @@ function statusToMoveObject(){
 
 function statusToMoveCam(){
     
-    let translateSpeed = 0.5; // units per second
+    let translateSpeed = 3; // units per second
     let distance = translateSpeed * deltaTime;
-    let rotateSpeed = Math.PI/3; // radians per second
+    let rotateSpeed = Math.PI/6; // radians per second
     let angle = rotateSpeed * deltaTime;
     
     //change position
